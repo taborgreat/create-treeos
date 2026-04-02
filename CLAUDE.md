@@ -27,7 +27,7 @@ startup.js         Boot sequence. Indexes, config, migrations, extensions, jobs.
 
 ## Architectural patterns (read before building anything)
 
-**Resolution chains walk the ancestor cache.** Extension scope, tool scope, mode resolution, LLM connection, LLM config, persona resolution, perspective filter resolution. All walk the parent chain from the current node to the root. All use the same cached snapshot per message. One walk serves all chains. The ancestor cache is the performance backbone.
+**Resolution chains walk the ancestor cache.** Extension scope, tool scope, mode resolution, LLM resolution, persona resolution, perspective filter resolution. All walk the parent chain from the current node to the root. All use the same cached snapshot per message. One walk serves all chains. The ancestor cache is the performance backbone.
 
 **Three zones. Position determines behavior.** `/` (land root) is the land zone: system management, config, users, peers. `~` (user home) is the home zone: personal space, raw ideas, settings. Inside a tree is the tree zone: chat/place/query, full orchestration. Navigate somewhere and the capability surface changes. The AI at each position has different tools, different modes, different context. `cd` is the most important command.
 
@@ -60,26 +60,12 @@ Full reference: `extensions/EXTENSION_FORMAT.md`
 - **Jobs** (background tasks with start/stop)
 - **Orchestrator** (replace the entire conversation flow)
 - **CLI commands** (auto-generated from manifest declarations)
-- **UI Slots** (HTML fragments injected into pages: app cards, quick links, profile sections, dashboard panels)
-- **HTML Pages** (server-rendered pages registered via html-rendering extension)
 
 ### Key patterns
 
 **enrichContext** is how you speak to the AI. The kernel builds the prompt. Your extension injects context through this hook. Always guard: check if relevant data exists before injecting. Never run expensive queries unconditionally.
 
 **setExtMeta** is how you write data. Each extension gets its own namespace in the metadata Map. `setExtMeta(node, "my-extension", data)` writes atomically. You can only write to your own namespace.
-
-**registerSlot** is how you add UI to pages. Extensions register HTML fragments for named slots (e.g. `apps-grid`, `user-quick-links`, `user-profile-sections`, `node-detail-sections`). Pages resolve slots by name. Whatever's installed appears. Whatever's not doesn't. Same pattern as hooks, modes, tools. Spatial scoping filters slots per position. Get it from treeos-base exports:
-```js
-const treeos = getExtension("treeos-base");
-treeos?.exports?.registerSlot?.("apps-grid", "my-ext", (ctx) => {
-  return `<div class="app-card">...</div>`;
-}, { priority: 50 });
-```
-
-**emitSlotUpdate** pushes live UI updates via WebSocket. After data changes (afterNote, afterMetadataWrite hooks), call `emitSlotUpdate(core, userId, slotName, extName, context)` to re-render a slot fragment and push it to the client without a page refresh.
-
-**inApp query param** is set when pages load inside the app shell iframe. Dashboard pages should skip their own chatbar when `inApp` is truthy because the app shell provides the chat panel. Pass `inApp: !!req.query.inApp` to your renderer and conditionally exclude chatbar HTML/CSS/JS.
 
 **OrchestratorRuntime** is how you run multi-step AI pipelines. Single LLM call: use `core.llm.runChat()`. Multi-step background pipeline: use `new OrchestratorRuntime()` with init, runStep, trackStep, cleanup.
 
@@ -100,17 +86,17 @@ Everything in the kernel serves one of four primitives:
 
 ## Extension ecosystem (95 extensions, 4 bundles)
 
-**Base TreeOS (21):** treeos-base, tree-orchestrator, land-manager, navigation, starter-types, console, dashboard, notifications, monitor, llm-response-formatting, team, user-tiers, html-rendering, water, heartbeat, purpose, phase, remember, breath, instructions, channels.
+**Base TreeOS (20):** treeos, tree-orchestrator, land-manager, navigation, starter-types, console, dashboard, notifications, monitor, llm-response-formatting, team, user-tiers, html-rendering, water, heartbeat, purpose, phase, remember, approve, instructions.
 
 **treeos-cascade (8):** The nervous system. Signals propagate, get filtered, compressed, monitored.
 
 **treeos-intelligence (14):** Self-awareness. Compression, contradiction detection, user profiling, autonomous intent, semantic search, exploration, tracing, boundary mapping, competence tracking, conversational awareness, extension proposal, temporal memory.
 
-**treeos-connect (11):** External channels. Telegram, Discord, Slack, email, SMS, webhooks, Matrix, Reddit, X, tree-to-tree.
+**treeos-connect (8):** External channels. Telegram, Discord, Slack, email, SMS, webhooks, Matrix.
 
 **treeos-maintenance (5):** Hygiene. Prune, reroot, changelog, daily digest, delegation.
 
-**Standalone (8):** persona, mycelium, peer-review, seed-export, governance, teach, split, approve.
+**Standalone (8):** persona, mycelium, peer-review, seed-export, channels, governance, teach, split.
 
 ## Security
 

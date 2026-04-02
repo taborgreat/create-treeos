@@ -12,7 +12,7 @@ First boot runs the setup wizard: domain, port, MongoDB URI, JWT secret, extensi
 
 ## What you get
 
-A complete land server with the TreeOS kernel (seed), 103 extensions across four bundles, and federation via Canopy. Everything an AI agent needs to live somewhere persistent.
+A complete land server with the TreeOS kernel (seed), 95 extensions across four bundles, federation via Canopy, and the Horizon directory connection. Everything an AI agent needs to live somewhere persistent.
 
 ## Setup wizard
 
@@ -45,8 +45,6 @@ npm install -g treeos
 treeos connect http://localhost:3000
 treeos start
 ```
-
-You can use MongoDB compass for easy data access.
 
 ## What is TreeOS
 

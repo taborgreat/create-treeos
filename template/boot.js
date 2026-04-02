@@ -175,12 +175,13 @@ const PROFILES = {
       "gap-detection", "long-memory", "pulse", "flow",
       // Intelligence
       "tree-compress", "contradiction", "inverse-tree", "evolution", "intent", "embed",
-      "scout", "explore", "trace", "boundary", "competence", "reflect", "evolve", "inner",
+      "scout", "explore", "trace", "boundary", "competence", "reflect", "evolve",
+      "inner", "reflect-inner", "compare-inner", "narrative", "prediction",
       // Maintenance
       "prune", "reroot", "changelog", "digest", "delegate",
       // Infrastructure
       "breath", "scheduler", "schedules", "prestige",
-      "persona", "peer-review", "channels", "taste",
+      "persona", "peer-review", "channels", "taste", "home-memory",
       // Proficiency apps
       "food", "fitness", "recovery", "study", "kb", "life",
       // Core gateways

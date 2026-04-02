@@ -77,13 +77,36 @@ export async function init(core) {
     }
 
     const persona = resolvePersonaFromChain(chain);
-    if (!persona) return;
+
+    // Layer narrative voice under the operator's persona.
+    // The narrative extension writes metadata.narrative.voice on the root.
+    // This is not replacing the persona. It's adding lived experience.
+    let narrativeVoice = null;
+    for (let i = chain.length - 1; i >= 0; i--) {
+      const narr = chain[i].metadata?.narrative;
+      if (narr?.voice) { narrativeVoice = narr.voice; break; }
+    }
+
+    if (!persona && !narrativeVoice) return;
+
+    // Layer narrative initiative (behavioral directives from months of observation)
+    let narrativeInitiative = null;
+    for (let i = chain.length - 1; i >= 0; i--) {
+      const narr = chain[i].metadata?.narrative;
+      if (narr?.initiative) { narrativeInitiative = narr.initiative; break; }
+    }
 
     const block = formatPersona(persona);
-    if (!block) return;
+    const voiceBlock = narrativeVoice
+      ? `[Tree's lived experience: ${narrativeVoice}]\n\n`
+      : "";
+    const initiativeBlock = narrativeInitiative
+      ? `[Behavioral directives from observation:\n${narrativeInitiative}]\n\n`
+      : "";
 
-    // Prepend persona to system message. Identity first.
-    messages[0].content = block + messages[0].content;
+    // Prepend persona + narrative voice + initiative to system message.
+    // Identity first, then lived experience, then behavioral shifts.
+    messages[0].content = block + voiceBlock + initiativeBlock + messages[0].content;
   }, "persona");
 
   // enrichContext: inject resolved persona into the structured context object.
@@ -100,6 +123,21 @@ export async function init(core) {
     const persona = resolvePersonaFromChain(chain);
     if (persona) context.persona = persona;
   }, "persona");
+
+  // HTML page + tree quick link
+  try {
+    const { getExtension } = await import("../loader.js");
+    const htmlExt = getExtension("html-rendering");
+    const base = getExtension("treeos-base");
+    if (htmlExt) {
+      const { default: buildHtmlRoutes } = await import("./htmlRoutes.js");
+      htmlExt.router.use("/", buildHtmlRoutes());
+    }
+    base?.exports?.registerSlot?.("tree-quick-links", "persona", ({ rootId, queryString }) =>
+      `<a href="/api/v1/root/${rootId}/identity${queryString}" class="back-link">Identity</a>`,
+      { priority: 40 }
+    );
+  } catch {}
 
   return {
     router,

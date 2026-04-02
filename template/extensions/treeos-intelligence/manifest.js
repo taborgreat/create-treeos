@@ -1,6 +1,6 @@
 export default {
   name: "treeos-intelligence",
-  version: "1.0.0",
+  version: "1.0.1",
   type: "bundle",
   builtFor: "seed",
   description:
@@ -25,22 +25,16 @@ export default {
     "\n\n" +
     "Install: treeos ext install treeos-intelligence",
 
+  includes: [
+    "tree-compress", "contradiction", "inverse-tree", "evolution", "intent", "embed",
+    "scout", "explore", "trace", "boundary", "competence", "reflect", "evolve", "rings",
+    "inner", "reflect-inner", "compare-inner", "narrative", "prediction", "taste",
+  ],
+
   needs: {
     extensions: [
-      "tree-compress",
-      "contradiction",
-      "inverse-tree",
-      "evolution",
-      "intent",
-      "embed",
-      "scout",
-      "explore",
-      "trace",
-      "boundary",
-      "competence",
-      "reflect",
-      "evolve",
-      "rings",
+      "tree-compress", "contradiction", "inverse-tree", "evolution", "intent", "embed",
+      "scout", "explore", "trace", "boundary", "competence", "reflect", "evolve", "rings",
     ],
   },
 
